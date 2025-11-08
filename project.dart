@@ -205,7 +205,7 @@ class VisualizerState extends ChangeNotifier {
   void _startTimer() {
     _playTimer?.cancel();
     final ms = max(40, (700 / (speed.clamp(0.3, 3.0))).round());
-    playTimer = Timer.periodic(Duration(milliseconds: ms), () {
+    _playTimer = Timer.periodic(Duration(milliseconds: ms), (_) {
       if (!playing) { _playTimer?.cancel(); _playTimer = null; return; }
       if (actionIndex + 1 >= actions.length) { stop(); return; }
       stepForward();
@@ -474,7 +474,7 @@ class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStat
     final st = state!;
     return Scaffold(
       body: Stack(children: [
-        AnimatedBuilder(animation: bgPulse, builder: (, __) => CustomPaint(painter: _SubtleBackground(t: _bgPulse.value))),
+        AnimatedBuilder(animation: _bgPulse, builder: (_, __) => CustomPaint(painter: _SubtleBackground(t: _bgPulse.value))),
         SafeArea(
           child: LayoutBuilder(builder: (ctx, bc) {
             final width = bc.maxWidth;
