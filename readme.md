@@ -1,157 +1,141 @@
-📘 README.md — Algorithm Visualizer Lite (Responsive Flutter App)
-🎯 Project Title
+# 📘 Algorithm Visualizer Lite (Responsive Flutter App)
 
-Algorithm Visualizer Lite — Interactive & Responsive Flutter App
+## 🎯 Project Title  
+**Algorithm Visualizer Lite — Interactive & Responsive Flutter App**
 
-🧠 Overview
+---
 
-Algorithm Visualizer Lite is an interactive Flutter application that allows users to visualize how different algorithms work step by step.
+## 🧠 Overview
+
+**Algorithm Visualizer Lite** is an interactive Flutter application that allows users to visualize how different algorithms work step by step.  
 It includes Sorting Algorithms (Bubble, Selection, Insertion) and Binary Search, with visual animations, speed control, code highlighting, and responsive design for all screen sizes.
 
-The app is designed as a single-file Flutter program, integrating every concept learned throughout your Flutter Lab Experiments — from basic UI building to animations, gestures, custom painting, and state management.
+The app is designed as a **single-file Flutter program**, integrating every concept learned throughout your Flutter Lab Experiments — from basic UI building to animations, gestures, custom painting, and state management.
 
-🧩 Features
+---
 
-✅ Algorithm Visualization:
+## 🧩 Features
 
-Watch Bubble Sort, Selection Sort, Insertion Sort, and Binary Search visualized dynamically.
+- ✅ **Algorithm Visualization**  
+  - Watch Bubble Sort, Selection Sort, Insertion Sort, and Binary Search visualized dynamically.  
+  - Each step (comparison, swap, range update) is animated clearly.
 
-Each step (comparison, swap, range update) is animated clearly.
+- ✅ **Pseudo-code Panel**  
+  - Displays the algorithm's pseudo-code side-by-side.  
+  - The current step is **highlighted live** for clarity.
 
-✅ Pseudo-code Panel:
+- ✅ **Interactive Controls**  
+  - Play, Pause, Step Forward/Backward to navigate through actions.  
+  - Speed Slider to control animation speed.  
+  - Reset, Generate Steps, Export Steps to replay or review the algorithm’s trace.
 
-Displays the algorithm's pseudo-code side-by-side.
+- ✅ **Binary Search Target Input**  
+  - Users can set a target manually, auto-pick, or randomize it to visualize search operations.
 
-The current step is highlighted live for clarity.
+- ✅ **Custom Array Editor**  
+  - Modify array values via tap or drag gestures.  
+  - Add or remove array elements dynamically.
 
-✅ Interactive Controls:
+- ✅ **Responsive Design**  
+  - Automatically adapts to wide screens (split panels), tablets (medium layout), and mobiles (bottom sheets).
 
-Play, Pause, Step Forward/Backward to navigate through actions.
+- ✅ **Beautiful Animated Background**  
+  - Soft animated gradients and color transitions built with `CustomPainter`.
 
-Speed Slider to control animation speed.
+- ✅ **Export Actions**  
+  - Export a full textual log of all algorithmic actions performed.
 
-Reset, Generate Steps, Export Steps to replay or review the algorithm’s trace.
+---
 
-✅ Binary Search Target Input:
+## 🧪 Flutter Lab Concepts Implemented
 
-Users can set a target manually, auto-pick, or randomize it to visualize search operations.
+| Lab Topic / Exercise | Concept Learned | Implementation in This App |
+|---|---:|---|
+| **Exp 1: Flutter Basics** | Scaffold, AppBar, Material Widgets | Used `Scaffold`, `AppBar`, `Card`, `FilledButton`, `OutlinedButton` throughout the UI |
+| **Exp 2: State Management** | Stateful Widgets, `setState()` | Managed state updates with `ChangeNotifier` + `InheritedWidget` (`VisualizerState` class) |
+| **Exp 3: Navigation & Routing** | Passing Data between Widgets | Algorithm and target data passed and updated dynamically without routes using inherited context |
+| **Exp 4: Forms & Validation** | TextFields, Dialog Inputs | Used in “Set Target” dialog and array value editor with validation |
+| **Exp 5: GestureDetector** | Touch Events | Used vertical drag gestures to change bar heights and tap gestures to edit values |
+| **Exp 6: AnimationController / Tween** | Animation and Timing | Animated bar swaps, transitions, and background glow |
+| **Exp 7: CustomPainter** | Drawing Shapes on Canvas | `_BarsPainterResponsive` paints bars, highlights, and comparisons dynamically |
+| **Exp 8: Asynchronous Programming** | `Future`, `Timer`, `async/await` | Animation sequencing and playback logic (`Timer.periodic` and delayed swaps) |
+| **Exp 9: Responsive Design** | `LayoutBuilder`, `MediaQuery` | Adaptive UI for narrow (mobile), medium (tablet), and wide (desktop) layouts |
+| **Exp 10: Data Visualization Project** | Combining All Concepts | The full app integrates all learned concepts into a cohesive visualization platform |
 
-✅ Custom Array Editor:
+---
 
-Modify array values via tap or drag gestures.
+## ⚙️ Technical Architecture
 
-Add or remove array elements dynamically.
+**Main Components:**
 
-✅ Responsive Design:
+1. **VisualizerState (ChangeNotifier):**  
+   - Manages algorithm data, actions, and animation control.  
+   - Handles play/pause, reset, generation, and export logic.
 
-Automatically adapts to wide screens (split panels), tablets (medium layout), and mobiles (bottom sheets).
+2. **CustomPainter (`_BarsPainterResponsive`):**  
+   - Dynamically draws colorful bars representing array values.  
+   - Highlights comparisons, swaps, and binary search range.
 
-✅ Beautiful Animated Background:
+3. **Pseudo-code Panel (`_PseudoCode`):**  
+   - Displays algorithm steps and highlights current executing line.
 
-Soft animated gradients and color transitions built with CustomPainter.
+4. **Responsive Layout:**  
+   - `LayoutBuilder` + `MediaQuery` used to adapt layout for various screen widths.
 
-✅ Export Actions:
+5. **Dialogs & Sheets:**  
+   - `AlertDialog` for value editing & binary target setting.  
+   - `BottomSheet` for settings on smaller screens.
 
-Export a full textual log of all algorithmic actions performed.
+---
 
-🧪 Flutter Lab Concepts Implemented
-Lab Topic / Exercise	Concept Learned	Implementation in This App
-Exp 1: Flutter Basics	Scaffold, AppBar, Material Widgets	Used Scaffold, AppBar, Card, FilledButton, OutlinedButton throughout the UI
-Exp 2: State Management	Stateful Widgets, setState()	Managed state updates with ChangeNotifier + InheritedWidget (VisualizerState class)
-Exp 3: Navigation & Routing	Passing Data between Widgets	Algorithm and target data passed and updated dynamically without routes using inherited context
-Exp 4: Forms & Validation	TextFields, Dialog Inputs	Used in “Set Target” dialog and array value editor with validation
-Exp 5: GestureDetector	Touch Events	Used vertical drag gestures to change bar heights and tap gestures to edit values
-Exp 6: AnimationController / Tween	Animation and Timing	Animated bar swaps, transitions, and background glow
-Exp 7: CustomPainter	Drawing Shapes on Canvas	_BarsPainterResponsive paints bars, highlights, and comparisons dynamically
-Exp 8: Asynchronous Programming	Future, Timer, async/await	Animation sequencing and playback logic (Timer.periodic and delayed swaps)
-Exp 9: Responsive Design	LayoutBuilder, MediaQuery	Adaptive UI for narrow (mobile), medium (tablet), and wide (desktop) layouts
-Exp 10: Data Visualization Project	Combining All Concepts	The full app integrates all learned concepts into a cohesive visualization platform
-⚙️ Technical Architecture
+## 🎨 UI Highlights
 
-Main Components:
+- Smooth animations for bar swaps and range highlighting  
+- Gradient background with glowing particles (`CustomPainter`)  
+- Material 3 buttons and components for a clean modern look  
+- Responsive layout — adapts to phones, tablets, and laptops automatically  
+- Compact control bar with speed slider and playback icons
 
-VisualizerState (ChangeNotifier):
+---
 
-Manages algorithm data, actions, and animation control.
+## 🧮 Algorithms Implemented
 
-Handles play/pause, reset, generation, and export logic.
+| Algorithm | Visualization Actions | Description |
+|---|---|---|
+| **Bubble Sort** | Compare, Swap, Mark Sorted | Demonstrates element swapping step-by-step |
+| **Selection Sort** | Compare, Swap, Mark Fixed | Shows how minimum elements are chosen |
+| **Insertion Sort** | Compare, Assign, Insert | Displays element shifting for insertion |
+| **Binary Search** | Range Update, Compare, Highlight | Shows how search range narrows and target is found |
 
-CustomPainter (_BarsPainterResponsive):
+---
 
-Dynamically draws colorful bars representing array values.
+## 🧰 Technologies Used
 
-Highlights comparisons, swaps, and binary search range.
+- **Language:** Dart  
+- **Framework:** Flutter (Material 3)  
+- **Architecture:** `InheritedWidget` + `ChangeNotifier`  
+- **UI Concepts:** `CustomPainter`, `GestureDetector`, `AnimationController`, `LayoutBuilder`  
+- **Async Features:** `Future`/`await`, `Timer`
 
-Pseudo-code Panel (_PseudoCode):
+---
 
-Displays algorithm steps and highlights current executing line.
+## 🚀 How to Run
 
-Responsive Layout:
+### ▶️ Run on DartPad (Online)
 
-LayoutBuilder + MediaQuery used to adapt layout for various screen widths.
+1. Visit: <https://dartpad.dev/flutter>  
+2. Copy & paste the full `main.dart` code (single file) into DartPad.  
+3. Click **Run** ▶️  
+4. Interact with the visualizer (change algorithm, play, step, etc.)
 
-Dialogs & Sheets:
+### 🧑‍💻 Run Locally
 
-AlertDialog for value editing & binary target setting.
+1. Install Flutter SDK (if not already installed).  
+2. Create a new project:
+   ```bash
+   flutter create algo_visualizer
+   cd algo_visualizer/lib
 
-BottomSheet for settings on smaller screens.
-
-🎨 UI Highlights
-
-Smooth animations for bar swaps and range highlighting
-
-Gradient background with glowing particles (CustomPainter)
-
-Material 3 buttons and components for a clean modern look
-
-Responsive layout — adapts to phones, tablets, and laptops automatically
-
-Compact control bar with speed slider and playback icons
-
-🧮 Algorithms Implemented
-Algorithm	Visualization Actions	Description
-Bubble Sort	Compare, Swap, Mark Sorted	Demonstrates element swapping step-by-step
-Selection Sort	Compare, Swap, Mark Fixed	Shows how minimum elements are chosen
-Insertion Sort	Compare, Assign, Insert	Displays element shifting for insertion
-Binary Search	Range Update, Compare, Highlight	Shows how search range narrows and target found
-🧰 Technologies Used
-
-Language: Dart
-
-Framework: Flutter (Material 3)
-
-Architecture: InheritedWidget + ChangeNotifier
-
-UI Concepts: CustomPainter, GestureDetector, AnimationController, LayoutBuilder
-
-Async Features: Future/await, Timer
-
-🚀 How to Run
-▶️ Run on DartPad (Online)
-
-Visit https://dartpad.dev/flutter
-
-Copy & paste the full main.dart code (single file)
-
-Click Run ▶️
-
-Interact with the visualizer (change algorithm, play, step, etc.)
-
-🧑‍💻 Run Locally
-
-Install Flutter SDK
-
-Create a new project:
-
-flutter create algo_visualizer
-cd algo_visualizer/lib
-
-
-Replace the default main.dart with this file.
-
-Run using:
-
-flutter run
 
 📊 Example Use
 
@@ -192,4 +176,5 @@ Export animation as a short video/gif
 Developed by: [Your Name]
 Course: B.Tech (3rd Year) — Flutter Lab Project
 Institution: [Your College Name]
+
 Instructor: [Optional, if submitting for evaluation]
