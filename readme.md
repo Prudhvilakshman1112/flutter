@@ -137,44 +137,42 @@ The app is designed as a **single-file Flutter program**, integrating every conc
    cd algo_visualizer/lib
 
 
-📊 Example Use
+---
 
-Select Bubble Sort
+## 📊 Example Use
 
-Click Generate Steps
+1. **Select** Bubble Sort  
+2. **Click** Generate Steps  
+3. **Press** Play ▶️ to watch swaps animate  
+4. **Adjust** Speed to visualize faster or slower  
+5. **Switch** to Binary Search, click **Set Target**, and watch how the target is found (or not)  
+6. **Tap** Export Steps to see a detailed log of all actions  
 
-Press Play to watch swaps animate
+---
 
-Adjust Speed to visualize faster or slower
+## 🏁 Outcome
 
-Switch to Binary Search, click Set Target, and watch how the target is found (or not)
+This project is a culmination of all **10 Flutter lab experiments**, showcasing a real-world interactive visual application that:
 
-Tap Export Steps to see a detailed log of all actions
+- ✅ Improves algorithm learning through visual engagement  
+- ✅ Demonstrates solid Flutter fundamentals and UI design  
+- ✅ Represents an innovative, rare, and practical mini-project suitable for **college submissions or hackathon demonstrations**
 
-🏁 Outcome
+---
 
-This project is a culmination of all 10 Flutter lab experiments, showcasing a real-world interactive visual application that:
+## 💡 Future Enhancements
 
-Improves algorithm learning through visual engagement
+- 🔹 Add **Merge Sort**, **Quick Sort**, and **Linear Search**  
+- 🔹 Integrate **sound effects** for comparisons/swaps  
+- 🔹 Add **3D-like bar animation** using `Transform`  
+- 🔹 Export animation as a **short video/gif**
 
-Demonstrates solid Flutter fundamentals and UI design
+---
 
-Represents an innovative, rare, and practical mini-project suitable for college submissions or hackathon demonstrations
+## 👨‍💻 Author
 
-💡 Future Enhancements
+**Developed by:** `Pilla Prudhvi Lakshman`  
+**Course:** *B.Tech (3rd Year) — Flutter Lab Project*  
+**Institution:** `Vignan Institute of information technology `  
 
-Add Merge Sort, Quick Sort, and Linear Search
-
-Integrate sound effects for comparisons/swaps
-
-Add 3D-like bar animation using Transform
-
-Export animation as a short video/gif
-
-👨‍💻 Author
-
-Developed by: [Your Name]
-Course: B.Tech (3rd Year) — Flutter Lab Project
-Institution: [Your College Name]
-
-Instructor: [Optional, if submitting for evaluation]
+---
