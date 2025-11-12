@@ -1,6 +1,6 @@
 // main.dart
 // Algorithm Visualizer Lite — Responsive version (single-file)
-// Keeps all features: algorithms, binary target, play/step/speed, export
+// Features: Bubble, Selection, Insertion — play/step/speed/export
 // Responsive: wide / medium / narrow breakpoints
 
 import 'dart:async';
@@ -8,7 +8,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 // ---------- Models & Actions ----------
-enum ActionType { compare, swap, assign, markSorted, highlight, rangeUpdate }
+enum ActionType { compare, swap, assign, markSorted, highlight }
 
 class AlgoAction {
   final ActionType type;
@@ -38,9 +38,6 @@ class VisualizerState extends ChangeNotifier {
   int comparisons = 0;
   int swaps = 0;
 
-  int bsL = -1, bsR = -1;
-  int? binaryTarget;
-
   List<int>? _initialSnapshot;
   Timer? _playTimer;
   bool _animating = false;
@@ -58,8 +55,6 @@ class VisualizerState extends ChangeNotifier {
     actionIndex = -1;
     comparisons = 0;
     swaps = 0;
-    bsL = bsR = -1;
-    binaryTarget = null;
     notifyListeners();
   }
 
@@ -79,11 +74,6 @@ class VisualizerState extends ChangeNotifier {
       case 'Insertion Sort':
         codeText = _insertionCode;
         break;
-      case 'Binary Search':
-        codeText = _binaryCode;
-        values = List<int>.from(values)..sort();
-        displayValues = List<int>.from(values);
-        break;
       default:
         codeText = '';
     }
@@ -92,7 +82,6 @@ class VisualizerState extends ChangeNotifier {
     highlightLine = -1;
     comparisons = 0;
     swaps = 0;
-    bsL = bsR = -1;
     if (generate) generateActions();
     notifyListeners();
   }
@@ -103,29 +92,14 @@ class VisualizerState extends ChangeNotifier {
     actions = [];
     actionIndex = -1;
     comparisons = swaps = 0;
-    bsL = bsR = -1;
     notifyListeners();
-  }
-
-  void setBinaryTarget(int? target, {bool regenerate = true}) {
-    binaryTarget = target;
-    if (selectedAlgo == 'Binary Search') {
-      values = List<int>.from(values)..sort();
-      displayValues = List<int>.from(values);
-    }
-    if (regenerate) generateActions(); else notifyListeners();
   }
 
   void generateActions() {
     actions = [];
     comparisons = 0;
     swaps = 0;
-    bsL = bsR = -1;
     List<int> arr = List<int>.from(values);
-    if (selectedAlgo == 'Binary Search') {
-      arr = List<int>.from(arr)..sort();
-      setValuesFromList(arr);
-    }
     switch (selectedAlgo) {
       case 'Bubble Sort':
         _genBubble(arr);
@@ -135,10 +109,6 @@ class VisualizerState extends ChangeNotifier {
         break;
       case 'Insertion Sort':
         _genInsertion(arr);
-        break;
-      case 'Binary Search':
-        final t = binaryTarget ?? (arr.isNotEmpty ? arr[arr.length ~/ 2] : 0);
-        _genBinarySearch(arr, t);
         break;
     }
     actionIndex = -1;
@@ -164,7 +134,6 @@ class VisualizerState extends ChangeNotifier {
   void _rebuildFromSnapshot() {
     if (_initialSnapshot == null) return;
     final arr = List<int>.from(_initialSnapshot!);
-    bsL = bsR = -1;
     comparisons = swaps = 0;
     for (int i = 0; i <= actionIndex; i++) {
       final a = actions[i];
@@ -177,8 +146,6 @@ class VisualizerState extends ChangeNotifier {
         arr[a.a] = a.b;
       } else if (a.type == ActionType.compare) {
         comparisons++;
-      } else if (a.type == ActionType.rangeUpdate) {
-        bsL = a.a; bsR = a.b;
       }
     }
     values = List<int>.from(arr);
@@ -204,10 +171,17 @@ class VisualizerState extends ChangeNotifier {
 
   void _startTimer() {
     _playTimer?.cancel();
-    final ms = max(40, (700 / (speed.clamp(0.3, 3.0))).round());
-    _playTimer = Timer.periodic(Duration(milliseconds: ms), (_) {
-      if (!playing) { _playTimer?.cancel(); _playTimer = null; return; }
-      if (actionIndex + 1 >= actions.length) { stop(); return; }
+    final int ms = max(40, (700 / (speed.clamp(0.3, 3.0))).round());
+    _playTimer = Timer.periodic(Duration(milliseconds: ms), (Timer t) {
+      if (!playing) {
+        _playTimer?.cancel();
+        _playTimer = null;
+        return;
+      }
+      if (actionIndex + 1 >= actions.length) {
+        stop();
+        return;
+      }
       stepForward();
     });
   }
@@ -227,7 +201,6 @@ class VisualizerState extends ChangeNotifier {
     highlightLine = -1;
     comparisons = 0;
     swaps = 0;
-    bsL = bsR = -1;
     notifyListeners();
   }
 
@@ -264,18 +237,14 @@ class VisualizerState extends ChangeNotifier {
       highlightLine = _lineForAction(a);
       notifyListeners();
       await Future.delayed(const Duration(milliseconds: 180));
-    } else if (a.type == ActionType.rangeUpdate) {
-      bsL = a.a; bsR = a.b;
-      highlightLine = _lineForAction(a);
-      notifyListeners();
-      await Future.delayed(Duration(milliseconds: max(40, (180 ~/ speed))));
     }
   }
 
   Future<void> _animateSwap(int i, int j) async {
     if (_animating) return;
     _animating = true;
-    final aVal = displayValues[i]; final bVal = displayValues[j];
+    final aVal = displayValues[i];
+    final bVal = displayValues[j];
     final durationMs = max(80, (260 ~/ speed));
     final steps = (durationMs / 16).ceil();
     for (int s = 1; s <= steps; s++) {
@@ -285,8 +254,11 @@ class VisualizerState extends ChangeNotifier {
       notifyListeners();
       await Future.delayed(const Duration(milliseconds: 16));
     }
-    final tmp = values[i]; values[i] = values[j]; values[j] = tmp;
-    displayValues[i] = values[i]; displayValues[j] = values[j];
+    final tmp = values[i];
+    values[i] = values[j];
+    values[j] = tmp;
+    displayValues[i] = values[i];
+    displayValues[j] = values[j];
     _animating = false;
   }
 
@@ -302,33 +274,41 @@ class VisualizerState extends ChangeNotifier {
       notifyListeners();
       await Future.delayed(const Duration(milliseconds: 16));
     }
-    values[index] = newVal; displayValues[index] = newVal;
+    values[index] = newVal;
+    displayValues[index] = newVal;
     _animating = false;
   }
 
   int _lineForAction(AlgoAction a) {
     switch (selectedAlgo) {
       case 'Bubble Sort':
-        if (a.type == ActionType.compare) return 3; if (a.type == ActionType.swap) return 4; return 1;
+        if (a.type == ActionType.compare) return 3;
+        if (a.type == ActionType.swap) return 4;
+        return 1;
       case 'Selection Sort':
-        if (a.type == ActionType.compare) return 4; if (a.type == ActionType.swap) return 5; return 1;
+        if (a.type == ActionType.compare) return 4;
+        if (a.type == ActionType.swap) return 5;
+        return 1;
       case 'Insertion Sort':
-        if (a.type == ActionType.compare) return 4; if (a.type == ActionType.assign) return 5; return 1;
-      case 'Binary Search':
-        if (a.type == ActionType.rangeUpdate) return 2; if (a.type == ActionType.compare) return 3; if (a.type == ActionType.highlight) return 4; return 1;
+        if (a.type == ActionType.compare) return 4;
+        if (a.type == ActionType.assign) return 5;
+        return 1;
       default:
         return 1;
     }
   }
 
   void _genBubble(List<int> arr) {
-    _initialSnapshot = List<int>.from(arr); final n = arr.length;
+    _initialSnapshot = List<int>.from(arr);
+    final n = arr.length;
     for (int i = 0; i < n - 1; i++) {
       for (int j = 0; j < n - i - 1; j++) {
         actions.add(AlgoAction(type: ActionType.compare, a: j, b: j + 1, note: 'compare'));
         if (arr[j] > arr[j + 1]) {
           actions.add(AlgoAction(type: ActionType.swap, a: j, b: j + 1, note: 'swap'));
-          final tmp = arr[j]; arr[j] = arr[j + 1]; arr[j + 1] = tmp;
+          final tmp = arr[j];
+          arr[j] = arr[j + 1];
+          arr[j + 1] = tmp;
         }
       }
       actions.add(AlgoAction(type: ActionType.markSorted, a: n - i - 1, b: -1, note: 'sorted'));
@@ -336,7 +316,8 @@ class VisualizerState extends ChangeNotifier {
   }
 
   void _genSelection(List<int> arr) {
-    _initialSnapshot = List<int>.from(arr); final n = arr.length;
+    _initialSnapshot = List<int>.from(arr);
+    final n = arr.length;
     for (int i = 0; i < n - 1; i++) {
       int minIdx = i;
       for (int j = i + 1; j < n; j++) {
@@ -345,42 +326,34 @@ class VisualizerState extends ChangeNotifier {
       }
       if (minIdx != i) {
         actions.add(AlgoAction(type: ActionType.swap, a: i, b: minIdx, note: 'swap'));
-        final tmp = arr[i]; arr[i] = arr[minIdx]; arr[minIdx] = tmp;
+        final tmp = arr[i];
+        arr[i] = arr[minIdx];
+        arr[minIdx] = tmp;
       }
       actions.add(AlgoAction(type: ActionType.markSorted, a: i, b: -1, note: 'fixed'));
     }
-    actions.add(AlgoAction(type: ActionType.markSorted, a: n - 1, b: -1, note: 'last'));
+    if (n > 0) actions.add(AlgoAction(type: ActionType.markSorted, a: n - 1, b: -1, note: 'last'));
   }
 
   void _genInsertion(List<int> arr) {
-    _initialSnapshot = List<int>.from(arr); final n = arr.length;
+    _initialSnapshot = List<int>.from(arr);
+    final n = arr.length;
     for (int i = 1; i < n; i++) {
-      final key = arr[i]; int j = i - 1;
+      final key = arr[i];
+      int j = i - 1;
       actions.add(AlgoAction(type: ActionType.highlight, a: i, b: -1, note: 'key'));
       while (j >= 0) {
         actions.add(AlgoAction(type: ActionType.compare, a: j, b: i, note: 'compare'));
         if (arr[j] > key) {
           actions.add(AlgoAction(type: ActionType.assign, a: j + 1, b: arr[j], note: 'shift'));
-          arr[j + 1] = arr[j]; j--;
-        } else break;
+          arr[j + 1] = arr[j];
+          j--;
+        } else
+          break;
       }
       actions.add(AlgoAction(type: ActionType.assign, a: j + 1, b: key, note: 'insert'));
       arr[j + 1] = key;
     }
-  }
-
-  void _genBinarySearch(List<int> arr, int target) {
-    _initialSnapshot = List<int>.from(arr);
-    int l = 0, r = arr.length - 1;
-    while (l <= r) {
-      final mid = (l + r) >> 1;
-      actions.add(AlgoAction(type: ActionType.rangeUpdate, a: l, b: r, note: 'range'));
-      actions.add(AlgoAction(type: ActionType.compare, a: mid, b: -1, note: 'compare mid'));
-      if (arr[mid] == target) {
-        actions.add(AlgoAction(type: ActionType.highlight, a: mid, b: -1, note: 'found')); return;
-      } else if (arr[mid] < target) l = mid + 1; else r = mid - 1;
-    }
-    actions.add(AlgoAction(type: ActionType.highlight, a: -1, b: -1, note: 'not found'));
   }
 }
 
@@ -409,14 +382,6 @@ const _insertionCode = '''
 6     j = j - 1
 7   arr[j+1] = key
 ''';
-const _binaryCode = '''
-1 l = 0, r = n-1
-2 while l <= r
-3   mid = (l+r)/2
-4   if arr[mid] == target -> found
-5   else if arr[mid] < target -> l = mid+1
-6   else r = mid-1
-''';
 
 // ---------- App entry ----------
 void main() => runApp(const AlgoVisualizerApp());
@@ -442,6 +407,7 @@ class _ProviderHost extends InheritedWidget {
     assert(host != null, 'ProviderHost missing');
     return host!.state;
   }
+
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => false;
 }
@@ -456,32 +422,40 @@ class VisualizerHome extends StatefulWidget {
 class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStateMixin {
   VisualizerState? state;
   late final AnimationController _bgPulse;
+
   @override
   void initState() {
     super.initState();
     _bgPulse = AnimationController(vsync: this, duration: const Duration(seconds: 8))..repeat();
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     state ??= _ProviderHost.of(context);
   }
+
   @override
-  void dispose() { _bgPulse.dispose(); super.dispose(); }
+  void dispose() {
+    _bgPulse.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final st = state!;
     return Scaffold(
       body: Stack(children: [
-        AnimatedBuilder(animation: _bgPulse, builder: (_, __) => CustomPaint(painter: _SubtleBackground(t: _bgPulse.value))),
+        AnimatedBuilder(
+          animation: _bgPulse,
+          builder: (_, __) => CustomPaint(painter: _SubtleBackground(t: _bgPulse.value)),
+        ),
         SafeArea(
           child: LayoutBuilder(builder: (ctx, bc) {
             final width = bc.maxWidth;
             final isWide = width >= 1000;
             final isMedium = width >= 700 && width < 1000;
             final isNarrow = width < 700;
-            // top padding scales
             final outerPad = isNarrow ? 8.0 : (isMedium ? 12.0 : 16.0);
             final sidePad = isNarrow ? 8.0 : 14.0;
             return Padding(
@@ -501,7 +475,6 @@ class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStat
           }),
         ),
       ]),
-      // floating action: open right panel on narrow screens
       floatingActionButton: Builder(builder: (ctx) {
         final w = MediaQuery.of(ctx).size.width;
         if (w >= 700) return const SizedBox.shrink();
@@ -519,7 +492,10 @@ class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStat
       Text('Algorithm Visualizer', style: TextStyle(fontSize: isNarrow ? 16 : 20, fontWeight: FontWeight.bold)),
       const Spacer(),
       Row(children: [
-        FilledButton.tonal(onPressed: () { if (st.actions.isEmpty) st.generateActions(); _showExport(st); }, child: const Text('Export')),
+        FilledButton.tonal(onPressed: () {
+          if (st.actions.isEmpty) st.generateActions();
+          _showExport(st);
+        }, child: const Text('Export')),
         SizedBox(width: isNarrow ? 6 : 12),
         IconButton(onPressed: () => st.randomize(12), icon: const Icon(Icons.shuffle)),
       ])
@@ -535,8 +511,6 @@ class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStat
         child: Column(children: [
           Row(children: [
             AnimatedBuilder(animation: st, builder: (_, __) => Text(st.selectedAlgo, style: TextStyle(fontSize: isCompact ? 16 : 18, fontWeight: FontWeight.bold))),
-            const SizedBox(width: 8),
-            AnimatedBuilder(animation: st, builder: (_, __) => st.selectedAlgo == 'Binary Search' ? Chip(label: Text('Target: ${st.binaryTarget ?? "auto"}')) : const SizedBox.shrink()),
             const Spacer(),
             AnimatedBuilder(animation: st, builder: (_, __) => Text('Items: ${st.displayValues.length}', style: TextStyle(color: Colors.grey.shade600))),
           ]),
@@ -545,16 +519,12 @@ class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStat
           SizedBox(height: isCompact ? 8 : 12),
           Expanded(child: AnimatedBuilder(animation: st, builder: (_, __) {
             return LayoutBuilder(builder: (c, bc) {
-              // let painter adapt: pass available width
               return CustomPaint(
                 painter: _BarsPainterResponsive(
                   values: st.displayValues,
                   actions: st.actions,
                   actionIndex: st.actionIndex,
-                  bsL: st.bsL,
-                  bsR: st.bsR,
                   highlightLine: st.highlightLine,
-                  target: st.binaryTarget,
                   availableWidth: bc.maxWidth,
                 ),
                 size: Size.infinite,
@@ -584,7 +554,9 @@ class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStat
                 onVerticalDragUpdate: (d) {
                   final delta = -d.delta.dy ~/ 2;
                   final newVal = (st.values[i] + delta).clamp(5, 400);
-                  st.values[i] = newVal; st.displayValues[i] = newVal; st.notifyListeners();
+                  st.values[i] = newVal;
+                  st.displayValues[i] = newVal;
+                  st.notifyListeners();
                 },
                 child: Container(
                   width: compact ? 58 : 72,
@@ -630,47 +602,32 @@ class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStat
             const Text('Algorithm', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(width: 12),
             AnimatedBuilder(animation: st, builder: (_, __) => DropdownButton<String>(
-              value: st.selectedAlgo,
-              items: ['Bubble Sort', 'Selection Sort', 'Insertion Sort', 'Binary Search'].map((a) => DropdownMenuItem(value: a, child: Text(a))).toList(),
-              onChanged: (v) { if (v == null) return; st.setAlgorithm(v, generate: false); if (v == 'Binary Search') st.setValuesFromList(List.from(st.values)..sort()); st.generateActions(); },
-            )),
+                  value: st.selectedAlgo,
+                  items: ['Bubble Sort', 'Selection Sort', 'Insertion Sort'].map((a) => DropdownMenuItem(value: a, child: Text(a))).toList(),
+                  onChanged: (v) {
+                    if (v == null) return;
+                    st.setAlgorithm(v, generate: false);
+                    st.generateActions();
+                  },
+                )),
             const Spacer(),
-            FilledButton(onPressed: () { st.generateActions(); }, child: const Text('Generate')),
+            FilledButton(onPressed: () {
+              st.generateActions();
+            }, child: const Text('Generate')),
           ]),
           SizedBox(height: 12),
-          AnimatedBuilder(animation: st, builder: (_, __) {
-            if (st.selectedAlgo != 'Binary Search') return const SizedBox.shrink();
-            return Row(children: [
-              const Text('Target:', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(width: 8),
-              Text(st.binaryTarget?.toString() ?? 'auto', style: const TextStyle(fontSize: 14)),
-              const SizedBox(width: 12),
-              FilledButton(
-                onPressed: () => _showSetTargetDialog(st),
-                style: FilledButton.styleFrom(minimumSize: const Size(64, 36), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-                child: const Text('Set'),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: () { st.setBinaryTarget(null); },
-                style: OutlinedButton.styleFrom(minimumSize: const Size(64, 36), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-                child: const Text('Auto'),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(onPressed: () { // random pick from array
-                if (st.values.isNotEmpty) st.setBinaryTarget(st.values[Random().nextInt(st.values.length)]);
-              }, child: const Text('Pick')),
-            ]);
-          }),
-          const SizedBox(height: 12),
           const Text('Pseudo-code', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Expanded(child: AnimatedBuilder(animation: st, builder: (_, __) => _PseudoCode(code: st.codeText, highlightLine: st.highlightLine))),
           const SizedBox(height: 12),
           Row(children: [
-            OutlinedButton(onPressed: () { _showSamples(st); }, child: const Text('Samples')),
+            OutlinedButton(onPressed: () {
+              _showSamples(st);
+            }, child: const Text('Samples')),
             const SizedBox(width: 8),
-            OutlinedButton(onPressed: () { st.reset(); }, child: const Text('Reset')),
+            OutlinedButton(onPressed: () {
+              st.reset();
+            }, child: const Text('Reset')),
           ]),
         ]),
       ),
@@ -707,7 +664,10 @@ class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStat
           SizedBox(width: 8),
           Expanded(child: Slider(value: st.speed, min: 0.3, max: 3.0, divisions: 14, label: '${st.speed.toStringAsFixed(2)}x', onChanged: (v) => st.setSpeed(v))),
           SizedBox(width: compact ? 8 : 12),
-          FilledButton.tonal(onPressed: () { if (st.actions.isEmpty) st.generateActions(); _showExport(st); }, child: const Text('Steps')),
+          FilledButton.tonal(onPressed: () {
+            if (st.actions.isEmpty) st.generateActions();
+            _showExport(st);
+          }, child: const Text('Steps')),
         ]),
       );
     });
@@ -767,22 +727,6 @@ class _VisualizerHomeState extends State<VisualizerHome> with TickerProviderStat
       ],
     ));
   }
-
-  Future<void> _showSetTargetDialog(VisualizerState st) async {
-    final ctrl = TextEditingController(text: st.binaryTarget?.toString() ?? '');
-    await showDialog(context: context, builder: (_) => AlertDialog(
-      title: const Text('Set Binary Search Target'),
-      content: TextField(controller: ctrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Enter integer')),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        FilledButton(onPressed: () {
-          final v = int.tryParse(ctrl.text.trim());
-          st.setBinaryTarget(v);
-          Navigator.pop(context);
-        }, child: const Text('Set')),
-      ],
-    ));
-  }
 }
 
 // ---------- Responsive Bars Painter ----------
@@ -790,11 +734,9 @@ class _BarsPainterResponsive extends CustomPainter {
   final List<int> values;
   final List<AlgoAction> actions;
   final int actionIndex;
-  final int bsL, bsR;
   final int highlightLine;
-  final int? target;
   final double availableWidth;
-  _BarsPainterResponsive({required this.values, required this.actions, required this.actionIndex, required this.bsL, required this.bsR, required this.highlightLine, required this.availableWidth, this.target});
+  _BarsPainterResponsive({required this.values, required this.actions, required this.actionIndex, required this.highlightLine, required this.availableWidth});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -810,14 +752,6 @@ class _BarsPainterResponsive extends CustomPainter {
     final baseY = size.height;
     final r = 8.0;
 
-    if (bsL >= 0 && bsR >= bsL) {
-      final leftX = gap + bsL * (w + gap);
-      final rightX = gap + bsR * (w + gap) + w;
-      final rect = Rect.fromLTRB(leftX, 0, rightX, size.height);
-      final paint = Paint()..color = Colors.yellow.withOpacity(0.06);
-      canvas.drawRect(rect, paint);
-    }
-
     for (int i = 0; i < n; i++) {
       final x = gap + i * (w + gap);
       final h = (values[i] / maxVal) * (size.height - 40);
@@ -832,8 +766,6 @@ class _BarsPainterResponsive extends CustomPainter {
         else if (a.type == ActionType.markSorted && a.a == i) { color = Colors.green; border = 2.0; }
         else if (a.type == ActionType.assign && a.a == i) { color = Colors.purple; border = 2.0; }
       }
-
-      if (target != null && values[i] == target) { color = Colors.amber; border = 2.5; }
 
       final rect = RRect.fromRectAndRadius(Rect.fromLTWH(x, y, w, h), Radius.circular(r));
       final paint = Paint()..shader = LinearGradient(colors: [color.withOpacity(0.95), color.withOpacity(0.6)], begin: Alignment.topCenter, end: Alignment.bottomCenter).createShader(Rect.fromLTWH(x, y, w, h));
@@ -851,12 +783,13 @@ class _BarsPainterResponsive extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BarsPainterResponsive old) => old.values != values || old.actionIndex != actionIndex || old.actions != actions || old.bsL != bsL || old.bsR != bsR || old.highlightLine != highlightLine || old.target != target || old.availableWidth != availableWidth;
+  bool shouldRepaint(covariant _BarsPainterResponsive old) => old.values != values || old.actionIndex != actionIndex || old.actions != actions || old.highlightLine != highlightLine || old.availableWidth != availableWidth;
 }
 
 // ---------- Pseudo-code widget ----------
 class _PseudoCode extends StatelessWidget {
-  final String code; final int highlightLine;
+  final String code;
+  final int highlightLine;
   const _PseudoCode({required this.code, required this.highlightLine});
   @override
   Widget build(BuildContext context) {
@@ -878,7 +811,8 @@ class _PseudoCode extends StatelessWidget {
 
 // ---------- Subtle background ----------
 class _SubtleBackground extends CustomPainter {
-  final double t; _SubtleBackground({required this.t});
+  final double t;
+  _SubtleBackground({required this.t});
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
@@ -892,6 +826,7 @@ class _SubtleBackground extends CustomPainter {
     blobPaint.shader = RadialGradient(colors: [Colors.pink.withOpacity(0.05), Colors.transparent]).createShader(Rect.fromCircle(center: c2, radius: 200));
     canvas.drawCircle(c2, 200, blobPaint);
   }
+
   @override
   bool shouldRepaint(covariant _SubtleBackground old) => old.t != t;
 }
