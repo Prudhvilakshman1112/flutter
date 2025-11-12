@@ -8,7 +8,7 @@
 ## 🧠 Overview
 
 **Algorithm Visualizer Lite** is an interactive Flutter application that allows users to visualize how different algorithms work step by step.  
-It includes Sorting Algorithms (Bubble, Selection, Insertion) and Binary Search, with visual animations, speed control, code highlighting, and responsive design for all screen sizes.
+It includes Sorting Algorithms (Bubble, Selection, Insertion) , with visual animations, speed control, code highlighting, and responsive design for all screen sizes.
 
 The app is designed as a **single-file Flutter program**, integrating every concept learned throughout your Flutter Lab Experiments — from basic UI building to animations, gestures, custom painting, and state management.
 
@@ -17,7 +17,7 @@ The app is designed as a **single-file Flutter program**, integrating every conc
 ## 🧩 Features
 
 - ✅ **Algorithm Visualization**  
-  - Watch Bubble Sort, Selection Sort, Insertion Sort, and Binary Search visualized dynamically.  
+  - Watch Bubble Sort, Selection Sort, Insertion Sort,visualized dynamically.  
   - Each step (comparison, swap, range update) is animated clearly.
 
 - ✅ **Pseudo-code Panel**  
@@ -28,9 +28,6 @@ The app is designed as a **single-file Flutter program**, integrating every conc
   - Play, Pause, Step Forward/Backward to navigate through actions.  
   - Speed Slider to control animation speed.  
   - Reset, Generate Steps, Export Steps to replay or review the algorithm’s trace.
-
-- ✅ **Binary Search Target Input**  
-  - Users can set a target manually, auto-pick, or randomize it to visualize search operations.
 
 - ✅ **Custom Array Editor**  
   - Modify array values via tap or drag gestures.  
@@ -105,7 +102,7 @@ The app is designed as a **single-file Flutter program**, integrating every conc
 | **Bubble Sort** | Compare, Swap, Mark Sorted | Demonstrates element swapping step-by-step |
 | **Selection Sort** | Compare, Swap, Mark Fixed | Shows how minimum elements are chosen |
 | **Insertion Sort** | Compare, Assign, Insert | Displays element shifting for insertion |
-| **Binary Search** | Range Update, Compare, Highlight | Shows how search range narrows and target is found |
+
 
 ---
 
@@ -167,6 +164,8 @@ This project is a culmination of all **10 Flutter lab experiments**, showcasing 
 - 🔹 Add **3D-like bar animation** using `Transform`  
 - 🔹 Export animation as a **short video/gif**
 
+## 💡 live project link
+- 🔹 https://algo-visualizer-fpdn.onrender.com/
 ---
 
 ## 👨‍💻 Author
@@ -176,3 +175,4 @@ This project is a culmination of all **10 Flutter lab experiments**, showcasing 
 **Institution:** `Vignan Institute of information technology `  
 
 ---
+
